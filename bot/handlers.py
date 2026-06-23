@@ -47,213 +47,222 @@ def _log(message, direction: str, text: str) -> None:
 
 @bot.message_handler(commands=["start"], func=is_allowed)
 def cmd_start(message):
-    bot.send_message(
-        message.chat.id,
-        "✨ Hi there!\n\n"
-        "I'm your AI assistant, ready to help with questions, ideas, problem-solving, and much more.\n\n"
-        "💬 Send me a message to get started.\n"
-        "❓ Use /help to discover what I can do."
-    )
+bot.send_message(
+message.chat.id,
+"👋 Welcome!\n\n"
+"I'm your intelligent, friendly, and creative AI assistant.\n\n"
+"✨ Ask questions\n"
+"💡 Explore ideas\n"
+"📚 Learn something new\n"
+"📝 Improve your writing\n"
+"🚀 Solve problems faster\n\n"
+"💬 Send a message to begin.\n"
+"❓ Type /help to discover everything I can do."
+)
 
+@bot.message_handler(commands=["delete"], func=is_allowed)
+def cmd_delete(message):
+
+keyboard = InlineKeyboardMarkup()
+
+btn = InlineKeyboardButton(
+    "🗑️ Delete conversation",
+    callback_data="delete_chat"
+)
+
+keyboard.add(btn)
+
+bot.send_message(
+    message.chat.id,
+    "🗑️ Want to start over?\n\n"
+    "Click the button below to delete the entire conversation and begin with a clean slate.",
+    reply_markup=keyboard
+)
+
+@bot.callback_query_handler(func=lambda call: call.data == "delete_chat")
+def delete_chat(call):
+
+clear_history(call.from_user.id)
+
+bot.answer_callback_query(
+    call.id,
+    "Deleted ✅"
+)
+
+bot.send_message(
+    call.message.chat.id,
+    "✅ Conversation deleted.\n\n✨ You're ready for a fresh start."
+)
 
 @bot.message_handler(commands=["help"], func=is_allowed)
 def cmd_help(message):
-    lines = [
-        "/start - welcome message",
-        "/help - show this message",
-        "/reset - clear conversation history",
-        "/about - about this bot",
-        "/weather - weather",
-        "/time - current time",
-        "/quiz - quiz",
-        "/fact - random fact",
-        "/quotes - advice",
-        "/reminder - reminders",
-        "/todo - to do list",
-        "/news - news",
-    ]
-    if HF_SPACE_ID:
-        lines.append("/model - switch AI provider")
 
-    bot.send_message(message.chat.id, "\n".join(lines))
+lines = [
+    "✨ Here's how I can help you:",
+    "",
+    "👋 /start - Welcome and introduction",
+    "❓ /help - Explore my features",
+    "🔄 /reset - Start a fresh conversation",
+    "🤖 /about - Learn who I am",
+    "🌤️ /weather - Check the weather",
+    "🕒 /time - See the current time",
+    "🧩 /quiz - Challenge yourself",
+    "🧠 /fact - Discover something interesting",
+    "💬 /quotes - Get inspiration",
+    "⏰ /reminder - Useful reminders",
+    "📝 /todo - Organize your tasks",
+    "🗑️ /delete - Clear the conversation",
+    "📰 /news - Read the latest news",
+    "",
+    "💡 Ask questions, learn new things, generate ideas, or simply chat. I'm here to make every conversation useful and enjoyable."
+]
 
+if HF_SPACE_ID:
+    lines.append("🤖 /model - Switch AI provider")
 
-@bot.message_handler(commands=["reset"], func=is_allowed)
-def cmd_reset(message):
-    clear_history(message.from_user.id)
-    bot.send_message(message.chat.id, "Conversation cleared. Starting fresh!")
+bot.send_message(message.chat.id, "\n".join(lines))
 
 
 @bot.message_handler(commands=["about"], func=is_allowed)
 def cmd_about(message):
-    if HF_SPACE_ID:
-        provider = get_provider(message.from_user.id)
-        model_line = f"{MODEL} (main)" if provider == "main" else f"{HF_SPACE_ID} (hf)"
-    else:
-        model_line = MODEL
-    storage_line = "SQLite" if store is not None else "stateless (no memory)"
-    lines = [
-        f"Model  : {model_line}",
-        f"Storage: {storage_line}",
-        f"Hosting: {HOSTING_LABEL}",
-    ]
-    if COMMIT_SHA:
-        lines.append(f"Version: {COMMIT_SHA}")
-    bot.send_message(message.chat.id, "\n".join(lines))
 
 
 if HF_SPACE_ID:
+    provider = get_provider(message.from_user.id)
 
-    @bot.message_handler(commands=["model"], func=is_allowed)
-    def cmd_model(message):
-        parts = (message.text or "").split(maxsplit=1)
-        if len(parts) == 1:
-            current = get_provider(message.from_user.id)
-            bot.send_message(
-                message.chat.id,
-                f"Current provider: {current}\n\n"
-                "Options:\n"
-                "/model main — Cerebras (fast, multilingual, with memory)\n"
-                "/model hf — ArmGPT (Armenian only, slow, no memory)",
-            )
-            return
-        choice = parts[1].strip().lower()
-        if choice not in ("main", "hf"):
-            bot.send_message(
-                message.chat.id, "Invalid choice. Use: /model main or /model hf"
-            )
-            return
-        if not set_provider(message.from_user.id, choice):
-            bot.send_message(
-                message.chat.id, "Could not save preference. Try again later."
-            )
-            return
-        if choice == "hf":
-            bot.send_message(
-                message.chat.id,
-                "Switched to hf (ArmGPT).\n\n"
-                "Note: this is a tiny base completion model trained only on Armenian text. "
-                "It will continue whatever you write rather than answer questions, "
-                "and it does not understand English. Replies take ~30-60s and there is no memory.",
-            )
-        else:
-            bot.send_message(message.chat.id, "Switched to Main Provider.")
+    model_line = (
+        f"{MODEL} (main)"
+        if provider == "main"
+        else f"{HF_SPACE_ID} (hf)"
+    )
+else:
+    model_line = MODEL
 
+storage_line = (
+    "SQLite"
+    if store is not None
+    else "Stateless (no memory)"
+)
 
-import random
+lines = [
+    "👋 Hello! I'm your AI assistant.",
+    "",
+    "✨ Friendly and easy to talk to.",
+    "🧠 Intelligent and practical.",
+    "💡 Creative with ideas and solutions.",
+    "📚 Able to explain complex topics simply.",
+    "📝 Helpful for writing and improving English.",
+    "🌍 Ready to share facts, advice, and inspiration.",
+    "",
+    f"🤖 Model: {model_line}",
+    f"💾 Storage: {storage_line}",
+    f"🖥️ Hosting: {HOSTING_LABEL}",
+]
 
-# ---------------- WEATHER ----------------
+if COMMIT_SHA:
+    lines.append(f"🔖 Version: {COMMIT_SHA}")
 
+lines.append("")
+lines.append("💬 Learn • Create • Explore • Enjoy")
+
+bot.send_message(
+    message.chat.id,
+    "\n".join(lines)
+)
 @bot.message_handler(commands=["weather"], func=is_allowed)
 def cmd_weather(message):
-    bot.send_message(
-        message.chat.id,
-        "🌤️ Weather service example\n\n"
-        "To get real weather data connect OpenWeather API."
-    )
 
+bot.send_message(
+    message.chat.id,
+    "🌤️ Weather Center\n\n"
+    "Connect an OpenWeather API key to get real-time weather forecasts from anywhere in the world."
+)
 
-# ---------------- TIME ----------------
 
 @bot.message_handler(commands=["time"], func=is_allowed)
 def cmd_time(message):
-    now = datetime.now().strftime("%H:%M:%S")
-    bot.send_message(
-        message.chat.id,
-        f"🕒 Current time\n\n{now}"
-    )
 
 
-# ---------------- QUIZ ----------------
+now = datetime.now().strftime("%H:%M:%S")
 
-@bot.message_handler(commands=["quiz"], func=is_allowed)
-def cmd_quiz(message):
-    questions = [
-        "❓ What is the capital of Armenia?\n\nA) Gyumri\nB) Yerevan\nC) Vanadzor",
-        "❓ 2 + 2 = ?\n\nA) 3\nB) 4\nC) 5",
-        "❓ Which planet is called the Red Planet?\n\nA) Mars\nB) Venus\nC) Jupiter",
-        "❓ Which language is mostly used for AI?\n\nA) Python\nB) HTML\nC) CSS"
-    ]
-    bot.send_message(
-        message.chat.id,
-        random.choice(questions)
-    )
+bot.send_message(
+    message.chat.id,
+    f"🕒 Current time\n\n{now}\n\n⏳ Every second is a new opportunity."
+)
 
-
-# ---------------- FACT ----------------
 
 @bot.message_handler(commands=["fact"], func=is_allowed)
 def cmd_fact(message):
-    facts = [
-        "🧠 Your brain uses around 20% of your body's energy.",
-        "🐙 Octopuses have 3 hearts.",
-        "🍯 Honey never spoils.",
-        "🦒 Giraffes sleep about 30 minutes per day.",
-        "🌍 Earth rotates at about 1670 km/h."
-    ]
-    bot.send_message(
-        message.chat.id,
-        random.choice(facts)
-    )
 
+facts = [
+    "🧠 Your brain uses around 20% of your body's energy.",
+    "🐙 Octopuses have 3 hearts.",
+    "🍯 Honey never spoils.",
+    "🦒 Giraffes sleep about 30 minutes per day.",
+    "🌍 Earth rotates at about 1670 km/h.",
+    "⚡ A lightning bolt is five times hotter than the Sun's surface.",
+    "🌕 The Moon is slowly moving away from Earth every year."
+]
 
-# ---------------- QUOTES ----------------
+bot.send_message(
+    message.chat.id,
+    random.choice(facts)
+)
 
 @bot.message_handler(commands=["quotes"], func=is_allowed)
 def cmd_quotes(message):
-    quotes = [
-        "✨ Don't wait for opportunity. Create it.",
-        "🚀 Small progress is still progress.",
-        "🎯 Discipline beats motivation.",
-        "🔥 Start before you're ready.",
-        "💡 Success is built one day at a time."
-    ]
-    bot.send_message(
-        message.chat.id,
-        random.choice(quotes)
-    )
 
+quotes = [
+    "✨ Don't wait for opportunity. Create it.",
+    "🚀 Small progress is still progress.",
+    "🎯 Discipline beats motivation.",
+    "🔥 Start before you're ready.",
+    "💡 Success is built one day at a time.",
+    "🌱 Growth begins outside your comfort zone.",
+    "⭐ Great things take time."
+]
 
-# ---------------- REMINDER ----------------
+bot.send_message(
+    message.chat.id,
+    random.choice(quotes)
+)
 
 @bot.message_handler(commands=["reminder"], func=is_allowed)
 def cmd_reminder(message):
-    bot.send_message(
-        message.chat.id,
-        "⏰ Reminder ideas:\n\n"
-        "• Drink water 💧\n"
-        "• Read 10 pages 📖\n"
-        "• Exercise 20 minutes 🏃\n"
-        "• Finish homework 📝\n"
-        "• Sleep early 😴"
-    )
 
-
-# ---------------- TODO ----------------
+bot.send_message(
+    message.chat.id,
+    "⏰ Friendly reminders\n\n"
+    "💧 Drink water\n"
+    "📖 Read 10 pages\n"
+    "🏃 Move your body\n"
+    "📝 Finish important tasks\n"
+    "😴 Get enough sleep"
+)
 
 @bot.message_handler(commands=["todo"], func=is_allowed)
 def cmd_todo(message):
-    bot.send_message(
-        message.chat.id,
-        "📝 Today's To-Do List\n\n"
-        "☐ Study\n"
-        "☑ Drink water\n"
-        "☐ Exercise\n"
-        "☐ Read a book\n"
-        "☐ Finish assignments"
-    )
 
-
-# ---------------- NEWS ----------------
+bot.send_message(
+    message.chat.id,
+    "📝 Today's checklist\n\n"
+    "☐ Study\n"
+    "☑ Drink water\n"
+    "☑ Take a short break\n"
+    "☐ Exercise\n"
+    "☑ Learn something new\n"
+    "☑ Read a book"
+)
 
 @bot.message_handler(commands=["news"], func=is_allowed)
 def cmd_news(message):
-    bot.send_message(
-        message.chat.id,
-        "📰 News service example\n\n"
-        "To get real news connect NewsAPI."
-    )
 
+
+bot.send_message(
+    message.chat.id,
+    "📰 News Center\n\n"
+    "Connect NewsAPI to receive real-time headlines and stay updated."
+)
 
 @bot.message_handler(content_types=["text"], func=is_allowed)
 def handle_message(message):
