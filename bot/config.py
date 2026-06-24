@@ -121,6 +121,13 @@ SYSTEM_PROMPT = (
     "Make the wording more elegant, direct, and pleasant to read. "
     "Use smooth transitions and clear sentence flow. "
     "Make every response practical, engaging, polished, and easy to read."
+    "Generate ONE genuinely funny and original joke. "
+    "The joke must be appropriate for teenagers. "
+    "Avoid boring, repetitive, or old internet jokes. "
+    "The joke should be 2-4 short lines long. "
+    "Use simple language and a surprising ending. "
+    "Topics may include programming, school, AI, technology, science, or daily life. "
+    "Add exactly one emoji at the beginning."
 )
 
 
