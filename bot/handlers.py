@@ -1,4 +1,3 @@
-import json
 import os
 import random
 from datetime import datetime
@@ -463,24 +462,6 @@ def cmd_forget(message):
     f"🧹 Done! I've forgotten '{key}'."
     )
 
-
-@bot.message_handler(commands=["image"], func=is_allowed)
-def cmd_image(message):
-    parts = message.text.split(maxsplit=1)
-
-    if len(parts) < 2:
-        bot.send_message(
-            message.chat.id,
-            "🎨 Usage: /image <description>"
-        )
-        return
-
-    prompt = parts[1]
-
-    bot.send_message(
-        message.chat.id,
-        "🎨 Image generation is not configured yet.\nConnect an image AI provider first."
-)
 
 @bot.message_handler(commands=["about"], func=is_allowed)
 def cmd_about(message):
