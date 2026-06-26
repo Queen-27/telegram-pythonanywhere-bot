@@ -1,3 +1,4 @@
+import json
 import os
 import random
 from datetime import datetime
@@ -129,35 +130,9 @@ Requirements:
 def cmd_sticker(message):
 
 
-   stickers = [
 
 
-       "PASTE_REAL_STICKER_ID_1",
-
-
-       "PASTE_REAL_STICKER_ID_2",
-
-
-       "PASTE_REAL_STICKER_ID_3",
-
-
-   ]
-
-
-   prompt = """
-Generate a short message for an AI learning assistant before sending a sticker.
-
-
-Requirements:
-
-
-- Friendly, warm and natural tone
-- Use a few emojis
-- Tell the user that a random sticker is being sent
-- Make it fun and cheerful
-- Encourage them to continue learning and chatting
-- Keep it short (1-3 lines)
-"""
+   prompt = "Generate an stiker, that i can send in tg"
 
 
    response = ask_ai(message.from_user.id, prompt)
@@ -165,11 +140,6 @@ Requirements:
 
    bot.send_message(message.chat.id, response)
 
-
-   bot.send_sticker(
-       message.chat.id,
-       random.choice(stickers)
-   )
 
 
 @bot.message_handler(commands=["help"], func=is_allowed)
@@ -195,6 +165,9 @@ Include these commands:
 
 
 ❓ /help - Explore my features
+
+
+🎨 /image - Generate image prompts
 
 
 🔄 /reset - Start a fresh conversation
@@ -234,9 +207,6 @@ Include these commands:
 
 
 📰 /news - Read the latest news
-
-
-💬 /quote - Get inspiration
 
 
 🧠 /fact - Discover something interesting
@@ -350,23 +320,17 @@ Requirements:
    _log(message, "out", response)
 
 
-   @bot.message_handler(commands=["roll"], func=is_allowed)
-   def cmd_roll(message):
+@bot.message_handler(commands=["roll"], func=is_allowed)
+def cmd_roll(message):
 
 
     number = random.randint(1, 6)
+    response = f"🎲 You rolled: {number}"
 
 
-   response = f"🎲 You rolled: {number}"
+    bot.send_message(message.chat.id,response)
 
-
-   bot.send_message(
-       message.chat.id,
-       response
-   )
-
-
-   _log(message, "out", response)
+    _log(message, "out", response)
 
 
 @bot.message_handler(commands=["roast"], func=is_allowed)
@@ -422,5 +386,114 @@ def cmd_remember(message):
 
     _log(message, "out", note)
 
+@bot.message_handler(commands=["note"], func=is_allowed)
+def cmd_note(message):
+    parts = message.text.split(maxsplit=2)
+
+    if len(parts) < 3:
+        bot.send_message(
+        message.chat.id,
+        "Usage: /note <key> <text>"
+        )
+        return 
 
 
+    key = parts[1]
+    value = parts[2]
+
+    notes = store.get(f"notes:{message.from_user.id}")
+
+    if notes:
+        notes = json.loads(notes)
+    else:
+        notes = {}
+
+    notes[key] = value
+
+    store.set(
+    f"notes:{message.from_user.id}",
+    json.dumps(notes)
+)
+
+    bot.send_message(
+    message.chat.id,
+    f"Saved note '{key}'."
+    )
+
+@bot.message_handler(commands=["forget"], func=is_allowed)
+def cmd_forget(message):
+    parts = message.text.split(maxsplit=1)
+
+    if len(parts) < 2:
+        bot.send_message(
+        message.chat.id,
+        "🗑️ Which note should I forget?\nUsage: /forget <key>"
+    )
+        return
+
+    key = parts[1].strip()
+
+    notes = store.get(f"notes:{message.from_user.id}")
+
+    if not notes:
+        bot.send_message(
+        message.chat.id,
+        "📭 Your memory box is empty. No notes to forget."
+    )
+        return
+
+    notes = json.loads(notes)
+
+    if key not in notes:
+        bot.send_message(
+        message.chat.id,
+        f"🤔 I couldn't find a note called '{key}'."
+    )
+        return
+
+    del notes[key]
+
+    store.set(
+    f"notes:{message.from_user.id}",
+    json.dumps(notes)
+    )
+
+    bot.send_message(
+    message.chat.id,
+    f"🧹 Done! I've forgotten '{key}'."
+    )
+
+
+@bot.message_handler(commands=["image"], func=is_allowed)
+def cmd_image(message):
+    parts = message.text.split(maxsplit=1)
+
+    if len(parts) < 2:
+        bot.send_message(
+            message.chat.id,
+            "🎨 Usage: /image <description>"
+        )
+        return
+
+    prompt = parts[1]
+
+    bot.send_message(
+        message.chat.id,
+        "🎨 Image generation is not configured yet.\nConnect an image AI provider first."
+)
+
+@bot.message_handler(commands=["about"], func=is_allowed)
+def cmd_about(message):
+    prompt = """
+Generate a short about message for an AI learning assistant.
+
+Requirements:
+
+* Friendly tone
+* Use emojis
+* Explain what the bot can do
+* 4-6 lines
+  """
+    response = ask_ai(message.from_user.id,prompt)
+
+    bot.send_message(message.chat.id,response)
