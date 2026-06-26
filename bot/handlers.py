@@ -76,17 +76,15 @@ def _ai_reply(message, prompt: str, fallback: str) -> None:
 @bot.message_handler(commands=["start"], func=is_allowed)
 def cmd_start(message):
    prompt = """
-Generate a creative welcome message for a student using an AI learning assistant.
-
+Write a warm, exciting welcome message for a student opening an AI learning assistant for the first time.
 
 Requirements:
-- Friendly, warm and natural tone
-- Use a few emojis
-- Explain that the bot teaches step by step
-- Encourage the user to ask any question without hesitation
-- Briefly mention that /help shows all available commands
-- Make the user feel excited to learn
-- Keep it short (4-6 lines)
+- Sound human, upbeat, and genuinely curious about helping them learn
+- Use 2-3 emojis, not more
+- Mention that you explain things step by step, at their pace
+- Invite them to ask literally anything, even "dumb" questions
+- Mention /help briefly, once
+- 4-6 lines, no filler
    """
 
 
@@ -103,19 +101,15 @@ def cmd_reset(message):
 
 
    prompt = """
-Generate a creative reset message for an AI learning assistant.
-
+Write a short message confirming a fresh start for an AI learning assistant.
 
 Requirements:
-
-
-- Friendly, warm and natural tone
-- Use a few emojis
-- Explain that the previous conversation history was cleared
-- Tell the user that they are starting a brand new conversation
-- Encourage them to ask new questions and explore new ideas
-- Briefly mention that /help shows all available commands
-- Keep it short (4-6 lines)
+- Friendly, light, a little playful — like wiping a whiteboard clean
+- Confirm the previous conversation was cleared
+- Frame this as a blank page, not a loss
+- Encourage a new question or topic
+- Mention /help once
+- 4-6 lines
 """
 
 
@@ -146,15 +140,14 @@ def cmd_help(message):
 
 
    prompt = """
-Generate a creative help message for an AI learning assistant.
-
+Write a help message for an AI learning assistant bot, formatted for Telegram.
 
 Requirements:
-
-
-- Friendly, warm and natural tone
-- Use emojis
-- Create a beautiful title
+- Catchy title with an emoji
+- Group the commands below into 2-3 short categories (e.g. "Learning", "Fun & Games", "Utilities") instead of one long list
+- One short, punchy line per command — no repeated phrasing across lines
+- Friendly, energetic tone, not corporate
+- End with a one-line motivational nudge to ask a question right now
 
 
 Include these commands:
@@ -240,17 +233,12 @@ def cmd_quote(message):
 
 
    prompt = """
-Generate one original motivational quote.
-
+Write one original motivational quote — not a paraphrase of a famous one.
 
 Requirements:
-
-
-- Positive and inspiring
-- Friendly and natural
+- Specific and vivid, not generic ("believe in yourself" energy is banned)
 - Maximum 2 sentences
-- Use 1-2 emojis
-- Do not copy famous quotes
+- 1 emoji, placed naturally, not just tacked on the end
 """
 
 
@@ -268,17 +256,13 @@ Requirements:
 
 
        prompt = """
-Generate one surprising and interesting fact.
-
+Share one genuinely surprising fact most people don't know.
 
 Requirements:
-
-
-- Educational
-- Easy to understand
-- 2-4 sentences
-- Use emojis
-- Make it fun
+- Pick something counterintuitive, not the most overused trivia
+- 2-4 sentences, written like you're excited to tell a friend
+- 1-2 emojis
+- End with a tiny "why this matters" or fun twist
 """
 
 
@@ -296,17 +280,13 @@ Requirements:
 
 
     prompt = """
-Generate one original compliment.
-
+Write one original, specific-feeling compliment.
 
 Requirements:
-
-
-- Warm and encouraging
+- Avoid generic praise ("you're amazing") — make it feel earned and particular
 - 1-3 sentences
-- Friendly tone
-- Use emojis
-- Make the user smile
+- 1 emoji
+- Should make someone smile without sounding like a fortune cookie
 """
 
 
@@ -335,7 +315,7 @@ def cmd_roll(message):
 @bot.message_handler(commands=["roast"], func=is_allowed)
 def cmd_roast(message):
     name = message.text.split(maxsplit=1)[1] if " " in message.text else "you"
-    reply = ask_ai(message.from_user.id, f"Write a short, playful, friendly roast of {name}.")
+    reply = ask_ai(message.from_user.id, f"Write a short, clever, PG-rated roast of {name} — playful and witty, never mean-spirited, max 3 lines.")
     bot.send_message(message.chat.id, reply)
 
 @bot.message_handler(commands=["remember"], func=is_allowed)
@@ -462,18 +442,24 @@ def cmd_forget(message):
     f"🧹 Done! I've forgotten '{key}'."
     )
 
+@bot.message_handler(commands=["joke"], func=is_allowed)
+def cmd_joke(message):
+    _ai_reply(
+        message,
+        JOKE_PROMPT,
+        fallback="😅 Couldn't think of a joke right now, try again!"
+    )
 
 @bot.message_handler(commands=["about"], func=is_allowed)
 def cmd_about(message):
     prompt = """
-Generate a short about message for an AI learning assistant.
+Write a short "about me" message for an AI learning assistant bot.
 
 Requirements:
-
-* Friendly tone
-* Use emojis
-* Explain what the bot can do
-* 4-6 lines
+- Friendly, a little personality-forward (not robotic)
+- Explain what you help with: explaining things, answering questions, learning together
+- 4-6 lines
+- 2-3 emojis
   """
     response = ask_ai(message.from_user.id,prompt)
 
